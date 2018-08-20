@@ -1,6 +1,6 @@
 CC= gcc
 CXX= g++
-CFLAGS= -Wall
+CXXFLAGS= -Wall
 LIBS= -lwiringPi
 TARGET = iLoveFood
 
@@ -8,13 +8,15 @@ TARGET = iLoveFood
 
 default: $(TARGET)
 
+possibilities: possibilities.o
+
 all: default reset
 
 OBJECTS = $(patsubst %.cpp,%.o, $(wildcard *.cpp))
-HEADERS = $(wildcard *.h)
+HEADERS = $(wildcard *.hpp)
 
 %.o: %.cpp $(HEADERS)
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
@@ -22,9 +24,16 @@ $(TARGET): $(OBJECTS)
 	$(CXX) $(TARGET).o -Wall $(LIBS) -o $@
 
 reset: $(OBJECTS)
-	$(CXX) reset7SD.o -Wall $(LIBS) -o $@
+	$(CXX) reset.o -Wall $(LIBS) -o $@
+
+showall: showall.o translator7SD.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o $@ $^
+
+showall.o: showall.cc translator7SD.h
+	$(CXX) $(CXXFLAGS) -c $(LIBS) $<
+
+translator7SD.o: translator7SD.cc translator7SD.h
+	$(CXX) $(CXXFLAGS) -c $(LIBS) $<
 
 clean:
-	-rm -f *.o
-	-rm -f $(TARGET)
-	-rm -f  reset7SD
+	-rm -f *.o $(TARGET) reset showall
